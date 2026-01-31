@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Controle Financeiro Familiar</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<div class="container">
+<h1>Controle Financeiro</h1>
+
+
+<!-- ================= RECEITAS ================= -->
+<section>
+<h2>Adicionar Receita</h2>
+<form id="formReceita">
+<select id="rTipo">
+<option>Salário</option>
+<option>Vale Alimentação</option>
+<option>Vale Transporte</option>
+<option>Extra</option>
+<option>Comissão</option>
+<input id="rValor" type="number" step="0.01" placeholder="Valor" required>
+</select>
+<input id="rDescricao" placeholder="Descrição" required>
+<button type="submit">Adicionar Receita</button>
+</form>
+</section>
+
+
+<!-- ================= GASTOS ================= -->
+<section>
+<h2>Adicionar Gasto</h2>
+<form id="formGasto">
+<input id="descricao" placeholder="Descrição" required>
+<input id="valor" type="number" step="0.01" placeholder="Valor" required>
+<select id="tipo">
+<option value="Planejado">Planejado</option>
+<option value="NaoPlanejado">Não Planejado</option>
+<option value="Fixo">Fixo</option>
+</select>
+<select id="pagamento">
+<option value="avista">À Vista</option>
+<option value="parcelado">Parcelado</option>
+</select>
+<div id="parcelasDiv">
+<input id="parcelas" type="number" placeholder="Parcelas">
+</div>
+<input type="month" id="gMes" required>
+<button type="submit">Adicionar Gasto</button>
+</form>
+</section>
+
+
+<!-- ================= FILTRO ================= -->
+<section>
+<h2>Filtrar por Mês</h2>
+<input type="month" id="filtroMes">
+</section>
+
+
+<!-- ================= TABELA ================= -->
+</html>
