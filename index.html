@@ -2,36 +2,48 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Controle Financeiro Familiar</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Controle Financeiro</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-
 <div class="container">
+
+<!-- ================= LOGIN ================= -->
+<div id="loginBox">
+<h1>Login</h1>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+<p id="loginMsg"></p>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" style="display:none">
 <h1>Controle Financeiro</h1>
+<button onclick="logout()">Sair</button>
 
-
-<!-- ================= RECEITAS ================= -->
+<!-- RECEITAS -->
 <section>
 <h2>Adicionar Receita</h2>
 <form id="formReceita">
+<input id="rDescricao" placeholder="Descrição" required>
+<input id="rValor" type="number" step="0.01" placeholder="Valor" required>
 <select id="rTipo">
 <option>Salário</option>
 <option>Vale Alimentação</option>
 <option>Vale Transporte</option>
 <option>Extra</option>
 <option>Comissão</option>
-<input id="rValor" type="number" step="0.01" placeholder="Valor" required>
 </select>
-<input id="rDescricao" placeholder="Descrição" required>
-<button type="submit">Adicionar Receita</button>
+<input type="month" id="rMes" required>
+<button>Adicionar Receita</button>
 </form>
 </section>
 
-
-<!-- ================= GASTOS ================= -->
+<!-- GASTOS -->
 <section>
 <h2>Adicionar Gasto</h2>
 <form id="formGasto">
@@ -50,17 +62,165 @@
 <input id="parcelas" type="number" placeholder="Parcelas">
 </div>
 <input type="month" id="gMes" required>
-<button type="submit">Adicionar Gasto</button>
+<button>Adicionar Gasto</button>
 </form>
 </section>
 
-
-<!-- ================= FILTRO ================= -->
+<!-- FILTRO -->
 <section>
-<h2>Filtrar por Mês</h2>
+<h2>Filtrar Mês</h2>
 <input type="month" id="filtroMes">
 </section>
 
+<!-- TABELA -->
+<section>
+<h2>Gastos</h2>
+<table>
+<thead>
+<tr>
+<th>Descrição</th><th>Valor</th><th>Tipo</th><th>Pagamento</th><th>Parcelas</th><th>Mês</th>
+</tr>
+</thead>
+<tbody id="tabelaGastos"></tbody>
+</table>
+</section>
 
-<!-- ================= TABELA ================= -->
+<!-- RESUMO -->
+<section>
+<h2>Resumo</h2>
+<div class="resumo-box">
+<div>Receitas: R$ <span id="totalReceitas">0</span></div>
+<div>Gastos: R$ <span id="totalGastos">0</span></div>
+<div>Sobra: R$ <span id="saldoFinal">0</span></div>
+</div>
+<canvas id="grafico"></canvas>
+</section>
+
+</div>
+</div>
+
+<script>
+// ===== SUPABASE CONFIG =====
+const supabase = window.supabase.createClient(
+  "https://mdvuizhxxwfluahwvblj.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kdnVpemh4eHdmbHVhaHd2YmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4Njc1NDUsImV4cCI6MjA4NTQ0MzU0NX0.953ZvH6O7FMV3qCdo2YW4NV2I5NK7yiIRTHycv0583s"
+);
+
+let user = null;
+let grafico = null;
+
+// ===== LOGIN =====
+async function login(){
+ const {data,error} = await supabase.auth.signInWithPassword({
+   email: email.value,
+   password: password.value
+ });
+ if(error){ loginMsg.innerText = error.message; return; }
+ user = data.user;
+ iniciarApp();
+}
+
+async function logout(){
+ await supabase.auth.signOut();
+ location.reload();
+}
+
+async function iniciarApp(){
+ loginBox.style.display="none";
+ app.style.display="block";
+ carregarTudo();
+}
+
+// ===== FORM EVENTS =====
+pagamento.onchange=()=>parcelasDiv.style.display = pagamento.value=="parcelado"?"block":"none";
+
+formReceita.onsubmit = async e =>{
+ e.preventDefault();
+ await supabase.from("receitas").insert({
+   descricao:rDescricao.value,
+   valor:rValor.value,
+   tipo:rTipo.value,
+   mes:rMes.value,
+   user_id:user.id
+ });
+ formReceita.reset();
+ carregarTudo();
+}
+
+formGasto.onsubmit = async e =>{
+ e.preventDefault();
+ await supabase.from("gastos").insert({
+   descricao:descricao.value,
+   valor:valor.value,
+   tipo:tipo.value,
+   pagamento:pagamento.value,
+   parcelas: pagamento.value=="parcelado"?parcelas.value:"-",
+   mes:gMes.value,
+   user_id:user.id
+ });
+ formGasto.reset();
+ parcelasDiv.style.display="none";
+ carregarTudo();
+}
+
+filtroMes.onchange=carregarTudo;
+
+// ===== DATA =====
+async function carregarTudo(){
+ let mes = filtroMes.value;
+
+ let {data:receitas} = await supabase.from("receitas").select().eq("user_id",user.id);
+ let {data:gastos} = await supabase.from("gastos").select().eq("user_id",user.id);
+
+ if(mes){
+   receitas = receitas.filter(r=>r.mes==mes);
+   gastos = gastos.filter(g=>g.mes==mes);
+ }
+
+ atualizarTabela(gastos);
+ atualizarResumo(receitas,gastos);
+ atualizarGrafico(gastos);
+}
+
+function atualizarTabela(gastos){
+ tabelaGastos.innerHTML="";
+ gastos.forEach(g=>{
+   tabelaGastos.innerHTML+=`<tr>
+   <td>${g.descricao}</td>
+   <td>R$ ${Number(g.valor).toFixed(2)}</td>
+   <td>${g.tipo}</td>
+   <td>${g.pagamento}</td>
+   <td>${g.parcelas}</td>
+   <td>${g.mes}</td>
+   </tr>`;
+ });
+}
+
+function atualizarResumo(receitas,gastos){
+ let totalR = receitas.reduce((a,b)=>a+Number(b.valor),0);
+ let totalG = gastos.reduce((a,b)=>a+Number(b.valor),0);
+ totalReceitas.innerText = totalR.toFixed(2);
+ totalGastos.innerText = totalG.toFixed(2);
+ saldoFinal.innerText = (totalR-totalG).toFixed(2);
+}
+
+function atualizarGrafico(gastos){
+ let p = gastos.filter(g=>g.tipo=="Planejado").reduce((a,b)=>a+Number(b.valor),0);
+ let n = gastos.filter(g=>g.tipo=="NaoPlanejado").reduce((a,b)=>a+Number(b.valor),0);
+ let f = gastos.filter(g=>g.tipo=="Fixo").reduce((a,b)=>a+Number(b.valor),0);
+
+ if(grafico) grafico.destroy();
+ grafico = new Chart(document.getElementById("grafico"),{
+   type:"pie",
+   data:{labels:["Planejado","Não Planejado","Fixo"],datasets:[{data:[p,n,f]}]}
+ });
+}
+
+// ===== AUTO LOGIN =====
+supabase.auth.getUser().then(r=>{
+ if(r.data.user){ user=r.data.user; iniciarApp(); }
+});
+
+</script>
+</body>
 </html>
