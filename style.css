@@ -1,67 +1,171 @@
-body {
-font-family: Arial, sans-serif;
-background: linear-gradient(135deg, #1f2933, #0f766e);
-color: #fff;
-}
+/* =====================
+MELHORIAS VISUAIS E MOBILE
+===================== */
 
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1f2933, #0f766e);
+  color: #fff;
+}
 
 .container {
-max-width: 900px;
-margin: auto;
-background: #ffffff;
-color: #000;
-padding: 20px;
-border-radius: 12px;
+  max-width: 1200px;
+  margin: 40px auto;
+  background: #ffffff;
+  color: #000;
+  padding: 40px;
+  border-radius: 14px;
 }
 
+section {
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
 
 h1, h2 {
-text-align: center;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
+form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  align-items: center;
+}
 
 input, select, button {
-padding: 10px;
-border-radius: 6px;
-border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
 }
-
 
 button {
-background: #16a34a;
-color: white;
-border: none;
-cursor: pointer;
+  background: #16a34a;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
-
 
 button:hover {
-background: #15803d;
+  background: #15803d;
 }
-
 
 .delete-btn {
-background: #dc2626;
-padding: 6px 10px;
-border-radius: 6px;
+  background: #dc2626;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
-
 
 .delete-btn:hover {
-background: #b91c1c;
+  background: #b91c1c;
 }
-
 
 .table-wrapper {
-overflow-x: auto;
+  overflow-x: auto;
 }
-
 
 table {
-width: 100%;
-border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
+th {
+  background: #16a34a;
+  color: white;
+}
 
 th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
 }
+
+.resumo-box {
+  display: flex;
+  justify-content: space-around;
+  background: #ecfeff;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 20px;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  .resumo-box {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+
+  input, select, button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+/* =====================
+BOTÃO EXCLUIR LANÇAMENTO
+===================== */
+
+// Dentro da função que monta a tabela, adicione:
+
+// <td><button class="delete-btn" onclick="excluirRegistro(id)">X</button></td>
+
+function excluirRegistro(id) {
+  if (confirm("Deseja excluir este lançamento?")) {
+    supabaseClient.from('lancamentos').delete().eq('id', id);
+    carregarDados();
+  }
+}
+
+/* =====================
+COMPARTILHAMENTO DE DADOS ENTRE USUÁRIOS
+===================== */
+/* =====================
+// CRIAR TABELA households
+// id | nome
+
+// CRIAR TABELA profiles
+// user_id | household_id
+
+// Cada usuário pertence a um household
+
+// Ao salvar dados:
+// inserir household_id junto
+
+const { data: userData } = await supabaseClient.auth.getUser();
+
+const { data: profile } = await supabaseClient
+  .from('profiles')
+  .select('household_id')
+  .eq('user_id', userData.user.id)
+  .single();
+
+const householdId = profile.household_id;
+
+await supabaseClient.from('lancamentos').insert({
+  descricao,
+  valor,
+  tipo,
+  household_id: householdId
+});
+
+// Ao buscar dados
+supabaseClient.from('lancamentos')
+  .select('*')
+  .eq('household_id', householdId);
+
+===================== */
+
