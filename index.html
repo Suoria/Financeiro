@@ -55,7 +55,7 @@
 <option value="Fixo">Fixo</option>
 </select>
 <select id="pagamento">
-<option value="À Vista">À Vista</option>
+<option value="avista">À Vista</option>
 <option value="parcelado">Parcelado</option>
 </select>
 <div id="parcelasDiv">
@@ -82,6 +82,7 @@
 </tr>
 </thead>
 <tbody id="tabelaGastos"></tbody>
+<td><button class="delete-btn" onclick="excluirRegistro(id)">X</button></td>
 </table>
 </section>
 
@@ -239,12 +240,10 @@ function atualizarGrafico(gastos) {
 }
 
 // ===== AUTO LOGIN =====
+
 supabaseClient.auth.getUser().then(r => {
   if (r.data.user) {
     user = r.data.user;
     iniciarApp();
   }
 });
-</script>
-</body>
-</html>
