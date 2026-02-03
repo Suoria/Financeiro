@@ -129,6 +129,26 @@ async function login() {
   iniciarApp();
 }
 
+
+// ===== LOGIN =====
+async function login() {
+  const emailValue = document.getElementById("email").value;
+  const passwordValue = document.getElementById("password").value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: emailValue,
+    password: passwordValue
+  });
+
+  if (error) {
+    document.getElementById("loginMsg").innerText = error.message;
+    return;
+  }
+
+  user = data.user;
+  iniciarApp();
+}
+
 async function logout() {
   await supabaseClient.auth.signOut();
   location.reload();
