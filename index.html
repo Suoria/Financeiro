@@ -4,22 +4,6 @@
 <meta charset="UTF-8">
 <title>Controle Financeiro</title>
 <link rel="stylesheet" href="style.css">
-<style>
-.btn-primary{
-  padding:14px 25px;
-  border-radius:10px;
-  border:none;
-  background:#16a34a;
-  color:#fff;
-  cursor:pointer;
-  font-size:15px;
-  min-width:220px;
-}
-
-.btn-primary:hover{
-  background:#15803d;
-}
-</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -32,7 +16,7 @@
 <h1>Login</h1>
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Senha">
-<button class="btn-primary" onclick="login()">Entrar</button>
+<button onclick="login()">Entrar</button>
 <p id="loginMsg"></p>
 </div>
 
