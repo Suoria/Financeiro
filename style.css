@@ -1,171 +1,111 @@
-/* =====================
-MELHORIAS VISUAIS E MOBILE
-===================== */
-
-body {
+body{
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1f2933, #0f766e);
-  color: #fff;
+  background: linear-gradient(135deg,#1f2933,#0f766e);
 }
 
-.container {
-  max-width: 1200px;
-  margin: 40px auto;
-  background: #ffffff;
-  color: #000;
-  padding: 40px;
-  border-radius: 14px;
+.container{
+  max-width:1200px;
+  margin:40px auto;
+  background:#fff;
+  padding:40px;
+  border-radius:14px;
 }
 
-section {
-  background: #f9fafb;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 30px;
+section{
+  background:#f8fafc;
+  padding:30px;
+  border-radius:12px;
+  margin-bottom:35px;
 }
 
-h1, h2 {
-  text-align: center;
-  margin-bottom: 20px;
+h1,h2{
+  text-align:center;
+  margin-bottom:25px;
 }
 
-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
-  align-items: center;
+/* FORMULÁRIOS */
+form{
+  display:flex;
+  flex-wrap:wrap;
+  gap:25px;
 }
 
-input, select, button {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+form input,
+form select{
+  flex:1 1 280px;
+  padding:14px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
 }
 
-button {
-  background: #16a34a;
-  color: white;
-  border: none;
-  cursor: pointer;
+form button{
+  padding:14px 25px;
+  border-radius:10px;
+  border:none;
+  background:#16a34a;
+  color:#fff;
+  cursor:pointer;
+  font-size:15px;
+  min-width:220px;
 }
 
-button:hover {
-  background: #15803d;
+form button:hover{
+  background:#15803d;
 }
 
-.delete-btn {
-  background: #dc2626;
-  padding: 6px 10px;
-  border-radius: 6px;
+/* TABELA */
+table{
+  width:100%;
+  border-collapse:collapse;
 }
 
-.delete-btn:hover {
-  background: #b91c1c;
+th{
+  background:#16a34a;
+  color:white;
 }
 
-.table-wrapper {
-  overflow-x: auto;
+th,td{
+  padding:12px;
+  border-bottom:1px solid #ddd;
+  text-align:center;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+/* RESUMO */
+.resumo-box{
+  display:flex;
+  justify-content:space-around;
+  background:#ecfeff;
+  padding:25px;
+  border-radius:12px;
+  font-size:18px;
 }
 
-th {
-  background: #16a34a;
-  color: white;
+/* BOTÃO EXCLUIR */
+.delete-btn{
+  background:#dc2626;
+  color:white;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
+.delete-btn:hover{
+  background:#b91c1c;
 }
 
-.resumo-box {
-  display: flex;
-  justify-content: space-around;
-  background: #ecfeff;
-  padding: 20px;
-  border-radius: 10px;
-  font-size: 18px;
-}
-
-@media (max-width: 700px) {
-  .container {
-    padding: 20px;
+/* MOBILE */
+@media(max-width:700px){
+  .container{padding:20px;}
+  form input,
+  form select,
+  form button{
+    flex:1 1 100%;
   }
-
-  form {
-    grid-template-columns: 1fr;
-  }
-
-  .resumo-box {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-}
-
-  input, select, button {
-    width: 100%;
-    margin-bottom: 8px;
-  }
-}
-
-/* =====================
-BOTÃO EXCLUIR LANÇAMENTO
-===================== */
-
-// Dentro da função que monta a tabela, adicione:
-
-// <td><button class="delete-btn" onclick="excluirRegistro(id)">X</button></td>
-
-function excluirRegistro(id) {
-  if (confirm("Deseja excluir este lançamento?")) {
-    supabaseClient.from('lancamentos').delete().eq('id', id);
-    carregarDados();
+  .resumo-box{
+    flex-direction:column;
+    gap:15px;
+    text-align:center;
   }
 }
-
-/* =====================
-COMPARTILHAMENTO DE DADOS ENTRE USUÁRIOS
-===================== */
-/* =====================
-// CRIAR TABELA households
-// id | nome
-
-// CRIAR TABELA profiles
-// user_id | household_id
-
-// Cada usuário pertence a um household
-
-// Ao salvar dados:
-// inserir household_id junto
-
-const { data: userData } = await supabaseClient.auth.getUser();
-
-const { data: profile } = await supabaseClient
-  .from('profiles')
-  .select('household_id')
-  .eq('user_id', userData.user.id)
-  .single();
-
-const householdId = profile.household_id;
-
-await supabaseClient.from('lancamentos').insert({
-  descricao,
-  valor,
-  tipo,
-  household_id: householdId
-});
-
-// Ao buscar dados
-supabaseClient.from('lancamentos')
-  .select('*')
-  .eq('household_id', householdId);
-
-===================== */
-
